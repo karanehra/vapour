@@ -15,12 +15,8 @@ import (
 func GetKey(res http.ResponseWriter, req *http.Request) {
 	key := mux.Vars(req)["key"]
 	res.WriteHeader(http.StatusOK)
-	value, err := util.GetBytestream(vapour.MasterCache.Get(key))
-	if err != nil {
-		util.SendServerErrorResponse(res, err.Error())
-		return
-	}
-	res.Write([]byte(value))
+	value := vapour.MasterCache.Get(key)
+	util.SendSuccessValueReponse(res, value)
 }
 
 //SetKey handles the get key endpoint
@@ -32,7 +28,6 @@ func SetKey(res http.ResponseWriter, req *http.Request) {
 		util.SendBadRequestResponse(res, err)
 		return
 	}
-
 	vapour.MasterCache.Set(keyInstace.Key, keyInstace.Value)
 	util.SendSuccessReponse(res, map[string]string{})
 }

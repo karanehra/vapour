@@ -24,6 +24,14 @@ func SendSuccessReponse(res http.ResponseWriter, responseBody interface{}) {
 	json.NewEncoder(res).Encode(responseBody)
 }
 
+//SendSuccessValueReponse sends a status 200 to the provided responseWriter
+func SendSuccessValueReponse(res http.ResponseWriter, value interface{}) {
+	res.WriteHeader(http.StatusOK)
+	var body = make(map[string]interface{})
+	body["value"] = value
+	json.NewEncoder(res).Encode(body)
+}
+
 //SendBadRequestResponse sends a status 400 to the provided responseWriter
 func SendBadRequestResponse(res http.ResponseWriter, responseBody interface{}) {
 	res.WriteHeader(http.StatusBadRequest)

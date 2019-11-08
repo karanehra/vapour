@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	vapour "vapour/cache"
 	"vapour/lib"
@@ -17,6 +18,7 @@ func GetKey(res http.ResponseWriter, req *http.Request) {
 	value, err := util.GetBytestream(vapour.MasterCache.Get(key))
 	if err != nil {
 		util.SendServerErrorResponse(res, err.Error())
+		return
 	}
 	res.Write([]byte(value))
 }
@@ -25,9 +27,12 @@ func GetKey(res http.ResponseWriter, req *http.Request) {
 func SetKey(res http.ResponseWriter, req *http.Request) {
 	var keyInstace lib.KeySetter
 	json.NewDecoder(req.Body).Decode(&keyInstace)
+	fmt.Println(keyInstace.Value)
 	if err := keyInstace.Validate(); len(err) > 0 {
 		util.SendBadRequestResponse(res, err)
+		return
 	}
+
 	vapour.MasterCache.Set(keyInstace.Key, keyInstace.Value)
 	util.SendSuccessReponse(res, map[string]string{})
 }

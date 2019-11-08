@@ -1,29 +1,19 @@
 package main
 
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"vapour/handlers"
+
+	"github.com/gorilla/mux"
+)
+
 func main() {
-	masterCache = CreateNewCache()
-}
-
-//Cache defines the Cache type
-type Cache struct {
-	keys map[string]interface{}
-}
-
-//Get fetches the provided keys value
-func (cache *Cache) Get(key string) interface{} {
-	return cache.keys[key]
-}
-
-//Set allots the provided key the provided value
-func (cache *Cache) Set(key string, value interface{}) {
-	cache.keys[key] = value
-}
-
-var masterCache *Cache
-
-//CreateNewCache inits a new cache
-func CreateNewCache() *Cache {
-	return &Cache{
-		keys: make(map[string]interface{}),
-	}
+	router := mux.NewRouter()
+	router.HandleFunc("/get/{key}", handlers.GetKey).Methods("GET")
+	router.HandleFunc("/set", handlers.GetKey).Methods("POST")
+	const PORT = 3000
+	fmt.Printf("Server started on PORT:%d\n", PORT)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))
 }

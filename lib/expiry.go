@@ -1,6 +1,8 @@
 package lib
 
-import "time"
+import (
+	"time"
+)
 
 //An ExpiryKey defines a struct to maintain volatile key expiries
 type ExpiryKey struct {

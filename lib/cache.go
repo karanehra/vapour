@@ -28,3 +28,8 @@ func (cache *Cache) Set(keyset *KeySetter) {
 		cache.Maintainer.Add(keyset)
 	}
 }
+
+//Delete removes the key-value pair from the cache
+func (cache *Cache) Delete(key string) {
+	delete(cache.Items, key)
+}

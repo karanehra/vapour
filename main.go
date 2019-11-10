@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	vapour "vapour/cache"
+	"vapour/cache"
 	"vapour/handlers"
 	"vapour/middlewares"
 	"vapour/util"
@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	vapour.InitCache()
+	cache.InitCache()
 	router := mux.NewRouter()
 	router.Use(middlewares.JSONMiddleware)
 	router.HandleFunc("/get/{key}", handlers.GetKey).Methods("GET")

@@ -1,4 +1,4 @@
-package vapour
+package cache
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ func InitCache() {
 		Timer: time.NewTicker(10 * time.Second),
 	}
 	MasterCache = &lib.Cache{
-		Items:      make(map[string]interface{}),
+		Shards:     make(map[string]*lib.CacheShard),
 		Maintainer: maintainer,
 	}
 
@@ -41,4 +41,9 @@ func InitCache() {
 			}
 		}
 	}()
+}
+
+//GetCache returns a pointer to the master cache
+func GetCache() *lib.Cache {
+	return MasterCache
 }

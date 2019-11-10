@@ -11,10 +11,10 @@ import (
 var MasterCache *lib.Cache
 
 //InitCache initializes the cache
-func InitCache() {
+func InitCache(expiryTime time.Duration) {
 	maintainer := &lib.ExpiryMaintainer{
 		Items: make([]lib.ExpiryKey, 0),
-		Timer: time.NewTicker(10 * time.Second),
+		Timer: time.NewTicker(expiryTime),
 	}
 	MasterCache = &lib.Cache{
 		Items:      make(map[string]interface{}),

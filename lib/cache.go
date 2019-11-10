@@ -3,7 +3,6 @@ package lib
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"vapour/util"
 )
 
 //The Cache struct defines a crude cache implementation
@@ -20,18 +19,8 @@ func (cache *Cache) Get(key string) interface{} {
 
 //Set allots the provided key the provided value
 func (cache *Cache) Set(keyset *KeySetter) {
-	// shard := cache.GetShard(keyset.Key)
-	// shard.Set(keyset)
-	shardID := GetShardIdentifierFromKey(keyset.Key)
-	shard := cache.Shards[shardID]
-	shard.Items[keyset.Key] = keyset.Value
-	if keyset.Expiry > 0 {
-		keyset := ExpiryKey{
-			ExpiryEpoch: util.GetMsSinceEpoch() + int64(keyset.Expiry),
-			Keyname:     keyset.Key,
-		}
-		cache.Maintainer.Add(keyset)
-	}
+	shard := cache.GetShard(keyset.Key)
+	shard.Set(keyset)
 }
 
 //Delete removes the key-value pair from the cache
@@ -44,16 +33,19 @@ func (cache *Cache) Delete(key string) {
 func (cache *Cache) GetShard(key string) *CacheShard {
 	shardID := GetShardIdentifierFromKey(key)
 	if cache.Shards[shardID] == nil {
-		cache.CreateShard(shardID)
-		return cache.Shards[shardID]
+		return cache.CreateShard(key)
 	}
 	return cache.Shards[shardID]
 }
 
 //CreateShard spawns a new shard inside the cache
-func (cache *Cache) CreateShard(key string) {
+func (cache *Cache) CreateShard(key string) *CacheShard {
 	shardID := GetShardIdentifierFromKey(key)
 	cache.Shards[shardID] = &CacheShard{
+		Items:  make(map[string]interface{}),
+		Parent: cache,
+	}
+	return &CacheShard{
 		Items:  make(map[string]interface{}),
 		Parent: cache,
 	}

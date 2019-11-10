@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"fmt"
 	"vapour/util"
 )
 
@@ -20,7 +19,6 @@ func (cache *Cache) Get(key string) interface{} {
 func (cache *Cache) Set(keyset *KeySetter) {
 	cache.Items[keyset.Key] = keyset.Value
 	if keyset.Expiry > 0 {
-		fmt.Printf("Expiry: %d \n", keyset.Expiry)
 		keyset := ExpiryKey{
 			ExpiryEpoch: util.GetMsSinceEpoch() + int64(keyset.Expiry),
 			Keyname:     keyset.Key,

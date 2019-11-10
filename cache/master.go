@@ -27,15 +27,17 @@ func InitCache() {
 			case t := <-MasterCache.Maintainer.Timer.C:
 				items := MasterCache.Maintainer.Items
 				var nonExpiredItems []lib.ExpiryKey
+				deletionCount := 0
 				for _, v := range items {
 					if v.ExpiryEpoch < util.GetMsSinceEpoch() {
 						MasterCache.Delete(v.Keyname)
+						deletionCount++
 					} else {
 						nonExpiredItems = append(nonExpiredItems, v)
 					}
 				}
 				MasterCache.Maintainer.Items = nonExpiredItems
-				fmt.Printf("Master time ticks %d \n", t.UnixNano())
+				fmt.Printf("Cleared %d Entries at %d\n", deletionCount, t.UnixNano())
 			}
 		}
 	}()

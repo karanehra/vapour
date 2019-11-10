@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-	vapour "vapour/cache"
+	"vapour/cache"
 	"vapour/handlers"
 	"vapour/middlewares"
 	"vapour/util"
@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	vapour.InitCache(5 * time.Minute)
+	cache.InitCache(5 * time.Minute)
 	router := mux.NewRouter()
 	router.Use(middlewares.JSONMiddleware)
 	router.HandleFunc("/get/{key}", handlers.GetKey).Methods("GET")

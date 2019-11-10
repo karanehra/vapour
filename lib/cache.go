@@ -1,41 +1,60 @@
 package lib
 
 import (
-	"sync"
-	"vapour/util"
+	"crypto/sha1"
+	"encoding/hex"
 )
 
 //The Cache struct defines a crude cache implementation
 type Cache struct {
-	Items      map[string]interface{}
+	Shards     map[string]*CacheShard
 	Maintainer *ExpiryMaintainer
-	SyncLock   sync.Mutex
 }
 
 //Get fetches the provided keys value
 func (cache *Cache) Get(key string) interface{} {
-	cache.SyncLock.Lock()
-	defer cache.SyncLock.Unlock()
-	return cache.Items[key]
+	shard := cache.GetShard(key)
+	return shard.Get(key)
 }
 
 //Set allots the provided key the provided value
 func (cache *Cache) Set(keyset *KeySetter) {
-	cache.SyncLock.Lock()
-	cache.Items[keyset.Key] = keyset.Value
-	cache.SyncLock.Unlock()
-	if keyset.Expiry > 0 {
-		keyset := ExpiryKey{
-			ExpiryEpoch: util.GetMsSinceEpoch() + int64(keyset.Expiry),
-			Keyname:     keyset.Key,
-		}
-		cache.Maintainer.Add(keyset)
-	}
+	shard := cache.GetShard(keyset.Key)
+	shard.Set(keyset)
 }
 
 //Delete removes the key-value pair from the cache
 func (cache *Cache) Delete(key string) {
-	cache.SyncLock.Lock()
-	delete(cache.Items, key)
-	cache.SyncLock.Unlock()
+	shard := cache.GetShard(key)
+	shard.Delete(key)
+}
+
+//GetShard returns a pointer to the shard allocated to the provided key
+func (cache *Cache) GetShard(key string) *CacheShard {
+	shardID := GetShardIdentifierFromKey(key)
+	if cache.Shards[shardID] == nil {
+		return cache.CreateShard(key)
+	}
+	return cache.Shards[shardID]
+}
+
+//CreateShard spawns a new shard inside the cache
+func (cache *Cache) CreateShard(key string) *CacheShard {
+	shardID := GetShardIdentifierFromKey(key)
+	cache.Shards[shardID] = &CacheShard{
+		Items:  make(map[string]interface{}),
+		Parent: cache,
+	}
+	return &CacheShard{
+		Items:  make(map[string]interface{}),
+		Parent: cache,
+	}
+}
+
+//GetShardIdentifierFromKey returns the identifier
+//of a shard based on the key value.
+func GetShardIdentifierFromKey(key string) string {
+	hasher := sha1.New()
+	hasher.Write([]byte(key))
+	return hex.EncodeToString(hasher.Sum(nil))[:2]
 }

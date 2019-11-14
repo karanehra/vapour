@@ -28,3 +28,8 @@ func SetKey(res http.ResponseWriter, req *http.Request) {
 	vapour.MasterCache.Set(&keyInstance)
 	util.SendSuccessReponse(res, map[string]string{})
 }
+
+//GetStatus is a dummy handler for send a status 200
+func GetStatus(res http.ResponseWriter, req *http.Request) {
+	util.SendSuccessReponse(res, nil)
+}

@@ -19,6 +19,7 @@ func main() {
 	router.Use(middlewares.JSONMiddleware)
 	router.HandleFunc("/get/{key}", handlers.GetKey).Methods("GET")
 	router.HandleFunc("/set", handlers.SetKey).Methods("POST")
+	router.HandleFunc("/status", handlers.GetStatus).Methods("GET")
 	const PORT = 3009
 	fmt.Printf("Server started on PORT:%d at %d\n", PORT, util.GetMsSinceEpoch())
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))

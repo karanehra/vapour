@@ -8,6 +8,7 @@ import (
 //The Cache struct defines a crude cache implementation
 type Cache struct {
 	Shards     map[string]*CacheShard
+	Counters   map[string]int32
 	Maintainer *ExpiryMaintainer
 }
 
@@ -21,6 +22,21 @@ func (cache *Cache) Get(key string) interface{} {
 func (cache *Cache) Set(keyset *KeySetter) {
 	shard := cache.GetShard(keyset.Key)
 	shard.Set(keyset)
+}
+
+//SetCounter creates a new counter with the provided name in the cache
+func (cache *Cache) SetCounter(counterName string) {
+	cache.Counters[counterName] = 0
+}
+
+//GetCounter returns the counters value
+func (cache *Cache) GetCounter(counterName string) int32 {
+	return cache.Counters[counterName]
+}
+
+//IncrementCounter ups the counter by unity
+func (cache *Cache) IncrementCounter(counterName string) {
+	cache.Counters[counterName]++
 }
 
 //Delete removes the key-value pair from the cache

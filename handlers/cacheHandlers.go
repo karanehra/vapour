@@ -29,6 +29,12 @@ func SetKey(res http.ResponseWriter, req *http.Request) {
 	util.SendSuccessReponse(res, map[string]string{})
 }
 
+//GetCounter handles the get counter endpoint
+func GetCounter(res http.ResponseWriter, req *http.Request) {
+	var reqBody interface{}
+	json.NewDecoder(req.Body).Decode(reqBody)
+}
+
 //GetStatus is a dummy handler for send a status 200
 func GetStatus(res http.ResponseWriter, req *http.Request) {
 	util.SendSuccessReponse(res, nil)

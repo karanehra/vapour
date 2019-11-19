@@ -31,8 +31,16 @@ func SetKey(res http.ResponseWriter, req *http.Request) {
 
 //GetCounter handles the get counter endpoint
 func GetCounter(res http.ResponseWriter, req *http.Request) {
-	var reqBody interface{}
-	json.NewDecoder(req.Body).Decode(reqBody)
+	key := mux.Vars(req)["name"]
+	count := vapour.MasterCache.GetCounter(key)
+	util.SendSuccessReponse(res, count)
+}
+
+//IncrementCounter handles the get increase counter endpoint
+func IncrementCounter(res http.ResponseWriter, req *http.Request) {
+	key := mux.Vars(req)["name"]
+	vapour.MasterCache.IncrementCounter(key)
+	util.SendSuccessReponse(res, map[string]string{})
 }
 
 //GetStatus is a dummy handler for send a status 200

@@ -21,6 +21,9 @@ func main() {
 	router.HandleFunc("/set", handlers.SetKey).Methods("POST")
 	router.HandleFunc("/counter/get/{name}", handlers.GetCounter).Methods("GET")
 	router.HandleFunc("/counter/increment/{name}", handlers.IncrementCounter).Methods("GET")
+	router.HandleFunc("/queue/create", handlers.CreateQueue).Methods("POST")
+	router.HandleFunc("/queue/{name}/enqueue", handlers.AddToQueue).Methods("POST")
+	router.HandleFunc("/queue/{name}/dequeue", handlers.AddToQueue).Methods("POST")
 	router.HandleFunc("/status", handlers.GetStatus).Methods("GET")
 	const PORT = 3009
 	fmt.Printf("Server started on PORT:%d at %d\n", PORT, util.GetMsSinceEpoch())

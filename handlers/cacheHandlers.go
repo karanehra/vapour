@@ -46,7 +46,25 @@ func IncrementCounter(res http.ResponseWriter, req *http.Request) {
 	util.SendSuccessReponse(res, map[string]string{})
 }
 
-//GetStatus is a dummy handler for send a status 200
+//GetStatus is a dummy handler for sending a status 200
 func GetStatus(res http.ResponseWriter, req *http.Request) {
+	util.SendSuccessReponse(res, nil)
+}
+
+//CreateQueue handles the queue creator endpoint
+//TODO
+func CreateQueue(res http.ResponseWriter, req *http.Request) {
+	util.SendSuccessReponse(res, nil)
+}
+
+//AddToQueue handles the data enqueue endpoint
+//TODO
+func AddToQueue(res http.ResponseWriter, req *http.Request) {
+	util.SendSuccessReponse(res, nil)
+}
+
+//RemoveFromQueue handles the data dequeue endpoint
+//TODO
+func RemoveFromQueue(res http.ResponseWriter, req *http.Request) {
 	util.SendSuccessReponse(res, nil)
 }

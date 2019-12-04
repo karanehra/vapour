@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	vapour "vapour/cache"
 	"vapour/lib"
@@ -12,6 +13,7 @@ import (
 
 //GetKey handles the get key endpoint
 func GetKey(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("Getting a key")
 	key := mux.Vars(req)["key"]
 	value := vapour.MasterCache.Get(key)
 	util.SendSuccessValueReponse(res, value)
@@ -19,6 +21,7 @@ func GetKey(res http.ResponseWriter, req *http.Request) {
 
 //SetKey handles the get key endpoint
 func SetKey(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("Setting a key")
 	var keyInstance lib.KeySetter
 	json.NewDecoder(req.Body).Decode(&keyInstance)
 	if err := keyInstance.Validate(); len(err) > 0 {

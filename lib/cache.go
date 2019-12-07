@@ -61,13 +61,11 @@ func (cache *Cache) GetShard(key string) *CacheShard {
 func (cache *Cache) CreateShard(key string) *CacheShard {
 	shardID := GetShardIdentifierFromKey(key)
 	cache.Shards[shardID] = &CacheShard{
-		Items:  make(map[string]interface{}),
-		Parent: cache,
+		Items:    make(map[string]interface{}),
+		Parent:   cache,
+		KeyCount: 0,
 	}
-	return &CacheShard{
-		Items:  make(map[string]interface{}),
-		Parent: cache,
-	}
+	return cache.Shards[shardID]
 }
 
 //GetShardIdentifierFromKey returns the identifier

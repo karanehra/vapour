@@ -28,5 +28,10 @@ func main() {
 	router.HandleFunc("/analytics/main", handlers.GetAllShards).Methods("GET")
 	const PORT = 3009
 	fmt.Printf("Server started on PORT:%d at %d\n", PORT, util.GetMsSinceEpoch())
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))
+	server := new(http.Server)
+	server.ReadTimeout = 5 * time.Second
+	server.WriteTimeout = 5 * time.Second
+	server.Addr = fmt.Sprintf(":%d", PORT)
+	server.Handler = router
+	log.Fatal(server.ListenAndServe())
 }

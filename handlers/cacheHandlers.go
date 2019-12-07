@@ -68,3 +68,15 @@ func AddToQueue(res http.ResponseWriter, req *http.Request) {
 func RemoveFromQueue(res http.ResponseWriter, req *http.Request) {
 	util.SendSuccessReponse(res, nil)
 }
+
+//GetAllShards handles the getting shard endpoint
+func GetAllShards(res http.ResponseWriter, req *http.Request) {
+	var shards map[string]*lib.CacheShard = vapour.MasterCache.Shards
+	var responseBody map[string]interface{} = map[string]interface{}{}
+	responseBody["totalKeyCount"] = vapour.MasterCache.KeyCount
+	responseBody["shards"] = []int64{}
+	for i := range shards {
+		responseBody["shards"] = append(responseBody["shards"].([]int64), shards[i].KeyCount)
+	}
+	util.SendSuccessReponse(res, responseBody)
+}

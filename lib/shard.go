@@ -9,6 +9,7 @@ import (
 type CacheShard struct {
 	Items    map[string]interface{}
 	Parent   *Cache
+	KeyCount int64
 	SyncLock sync.Mutex
 }
 
@@ -23,6 +24,7 @@ func (shard *CacheShard) Get(key string) interface{} {
 func (shard *CacheShard) Set(keyset *KeySetter) {
 	shard.SyncLock.Lock()
 	shard.Items[keyset.Key] = keyset.Value
+	shard.KeyCount++
 	if keyset.Expiry > 0 {
 		volatileKey := ExpiryKey{
 			ExpiryEpoch: util.GetMsSinceEpoch() + int64(keyset.Expiry),
@@ -36,6 +38,7 @@ func (shard *CacheShard) Set(keyset *KeySetter) {
 //Delete removes the key-value pair from the cache
 func (shard *CacheShard) Delete(key string) {
 	shard.SyncLock.Lock()
+	shard.KeyCount--
 	delete(shard.Items, key)
 	shard.SyncLock.Unlock()
 }

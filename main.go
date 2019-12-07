@@ -25,6 +25,7 @@ func main() {
 	router.HandleFunc("/queue/{name}/enqueue", handlers.AddToQueue).Methods("POST")
 	router.HandleFunc("/queue/{name}/dequeue", handlers.AddToQueue).Methods("POST")
 	router.HandleFunc("/status", handlers.GetStatus).Methods("GET")
+	router.HandleFunc("/analytics/main", handlers.GetAllShards).Methods("GET")
 	const PORT = 3009
 	fmt.Printf("Server started on PORT:%d at %d\n", PORT, util.GetMsSinceEpoch())
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), router))

@@ -10,6 +10,7 @@ type Cache struct {
 	KeyCount   int32
 	Shards     map[string]*CacheShard
 	Counters   map[string]int32
+	Buckets    map[string]*CacheShard
 	Maintainer *ExpiryMaintainer
 }
 

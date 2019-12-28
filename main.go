@@ -35,6 +35,8 @@ func main() {
 	router.HandleFunc("/status", handlers.GetStatus).Methods("GET")
 	router.HandleFunc("/analytics/main", handlers.GetAllShards).Methods("GET")
 
+	router.HandleFunc("/bucket", handlers.CreateBucket).Methods("POST")
+
 	var PORT = os.Getenv("PORT")
 	if PORT == "" {
 		log.Fatal("Env variable 'PORT' not specified")

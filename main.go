@@ -25,6 +25,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.Use(middlewares.JSONMiddleware)
+	router.Use(middlewares.CORSMiddleware)
 	router.HandleFunc("/get/{key}", handlers.GetKey).Methods("GET")
 	router.HandleFunc("/set", handlers.SetKey).Methods("POST")
 	router.HandleFunc("/counter/get/{name}", handlers.GetCounter).Methods("GET")

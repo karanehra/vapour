@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
 	"time"
 	"vapour/cache"
@@ -20,6 +22,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Env variable 'CACHE_DEFAULT_EXPIRY_MINUTES' not specified")
 	}
+
+	stoppedServer := make(chan bool, 1)
+	quitServer := make(chan os.Signal, 1)
+
+	signal.Notify(quitServer, os.Interrupt)
 
 	cache.InitCache(time.Duration(EXPIRY) * time.Minute)
 
@@ -50,5 +57,27 @@ func main() {
 	server.Addr = fmt.Sprintf(":%s", PORT)
 	server.Handler = router
 
-	log.Fatal(server.ListenAndServe())
+	go gracefulShutdown(server, quitServer, stoppedServer)
+
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatal(err.Error())
+	}
+
+	<-stoppedServer
+	fmt.Println("Bye")
+}
+
+func gracefulShutdown(server *http.Server, quitChan <-chan os.Signal, stopChan chan<- bool) {
+	<-quitChan
+	fmt.Println("\nShutting down Vapour..")
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	fmt.Println(cache.MasterCache.KeyCount)
+
+	server.SetKeepAlivesEnabled(false)
+	if err := server.Shutdown(ctx); err != nil {
+		fmt.Println("Error while closing server")
+	}
+	close(stopChan)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/csv"
 	"fmt"
 	"log"
 	"net/http"
@@ -72,12 +73,34 @@ func gracefulShutdown(server *http.Server, quitChan <-chan os.Signal, stopChan c
 	fmt.Println("\nShutting down Vapour..")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-
-	fmt.Println(cache.MasterCache.KeyCount)
-
+	err := dumpKeys()
 	server.SetKeepAlivesEnabled(false)
-	if err := server.Shutdown(ctx); err != nil {
+	if err = server.Shutdown(ctx); err != nil {
 		fmt.Println("Error while closing server")
 	}
 	close(stopChan)
+}
+
+func dumpKeys() error {
+	csvFile, err := os.Create("dump.csv")
+	if err != nil {
+		return err
+	}
+	defer csvFile.Close()
+	writer := csv.NewWriter(csvFile)
+	defer writer.Flush()
+	for i := range cache.MasterCache.Shards {
+		shard := cache.MasterCache.Shards[i]
+		for k, v := range shard.Items {
+			dataRow := []string{
+				k,
+				v.(string),
+			}
+			err := writer.Write(dataRow)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

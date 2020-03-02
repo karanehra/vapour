@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"time"
 	"vapour/cache"
 	"vapour/handlers"
+	"vapour/lib"
 	"vapour/middlewares"
 	"vapour/util"
 
@@ -30,6 +32,8 @@ func main() {
 	signal.Notify(quitServer, os.Interrupt)
 
 	cache.InitCache(time.Duration(EXPIRY) * time.Minute)
+
+	readdKeys()
 
 	router := mux.NewRouter()
 	router.Use(middlewares.JSONMiddleware)
@@ -103,4 +107,25 @@ func dumpKeys() error {
 		}
 	}
 	return nil
+}
+
+func readdKeys() {
+	localCSV, err := os.Open("dump.csv")
+	if err == nil {
+		fmt.Println("Picking up local keys")
+		reader := csv.NewReader(localCSV)
+		for {
+			record, err := reader.Read()
+			if err == io.EOF {
+				break
+			}
+			if err == nil {
+				keyset := &lib.KeySetter{
+					Key:   record[0],
+					Value: record[1],
+				}
+				cache.MasterCache.Set(keyset)
+			}
+		}
+	}
 }

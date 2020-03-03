@@ -17,8 +17,9 @@ func InitCache(expiryTime time.Duration) {
 		Timer: time.NewTicker(expiryTime),
 	}
 	MasterCache = &lib.Cache{
-		Shards:     make(map[string]*lib.CacheShard),
-		Maintainer: maintainer,
+		Shards:        make(map[string]*lib.CacheShard),
+		Maintainer:    maintainer,
+		StartupTimeMS: time.Now().Unix() * 1000,
 	}
 
 	go func() {

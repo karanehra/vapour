@@ -3,27 +3,36 @@ package lib
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"sync/atomic"
 )
 
 //The Cache struct defines a crude cache implementation
 type Cache struct {
-	KeyCount   int32
-	Shards     map[string]*CacheShard
-	Counters   map[string]int32
-	Buckets    map[string]*CacheShard
-	Maintainer *ExpiryMaintainer
+	KeyCount      int64
+	Shards        map[string]*CacheShard
+	Counters      map[string]int32
+	Buckets       map[string]*CacheShard
+	Maintainer    *ExpiryMaintainer
+	Hits          int64
+	Gets          int64
+	Sets          int64
+	StartupTimeMS int64
 }
 
 //Get fetches the provided keys value
 func (cache *Cache) Get(key string) interface{} {
 	shard := cache.GetShard(key)
+	atomic.AddInt64(&cache.Hits, 1)
+	atomic.AddInt64(&cache.Gets, 1)
 	return shard.Get(key)
 }
 
 //Set allots the provided key the provided value
 func (cache *Cache) Set(keyset *KeySetter) {
 	shard := cache.GetShard(keyset.Key)
-	cache.KeyCount++
+	atomic.AddInt64(&cache.KeyCount, 1)
+	atomic.AddInt64(&cache.Hits, 1)
+	atomic.AddInt64(&cache.Sets, 1)
 	shard.Set(keyset)
 }
 

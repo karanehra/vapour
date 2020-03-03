@@ -100,10 +100,7 @@ func dumpKeys() error {
 				k,
 				v.(string),
 			}
-			err := writer.Write(dataRow)
-			if err != nil {
-				return err
-			}
+			writer.Write(dataRow)
 		}
 	}
 	return nil

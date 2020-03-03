@@ -13,17 +13,17 @@ import (
 
 //GetKey handles the get key endpoint
 func GetKey(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("Getting a key")
 	key := mux.Vars(req)["key"]
+	fmt.Printf("Getting: %v\n", key)
 	value := vapour.MasterCache.Get(key)
 	util.SendSuccessValueReponse(res, value)
 }
 
 //SetKey handles the get key endpoint
 func SetKey(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("Setting a key")
 	var keyInstance lib.KeySetter
 	json.NewDecoder(req.Body).Decode(&keyInstance)
+	fmt.Printf("Setting: %v\n", keyInstance.Key)
 	if err := keyInstance.Validate(); len(err) > 0 {
 		util.SendBadRequestResponse(res, err)
 		return
@@ -74,6 +74,10 @@ func GetAllShards(res http.ResponseWriter, req *http.Request) {
 	var shards map[string]*lib.CacheShard = vapour.MasterCache.Shards
 	var responseBody map[string]interface{} = map[string]interface{}{}
 	responseBody["totalKeyCount"] = vapour.MasterCache.KeyCount
+	responseBody["hits"] = vapour.MasterCache.Hits
+	responseBody["gets"] = vapour.MasterCache.Gets
+	responseBody["sets"] = vapour.MasterCache.Sets
+	responseBody["startupMS"] = vapour.MasterCache.StartupTimeMS
 	responseBody["shards"] = []int64{}
 	for i := range shards {
 		responseBody["shards"] = append(responseBody["shards"].([]int64), shards[i].KeyCount)

@@ -98,9 +98,12 @@ func dumpKeys() error {
 		for k, v := range shard.Items {
 			dataRow := []string{
 				k,
-				v.(string),
+				fmt.Sprintf("%v", v),
 			}
-			writer.Write(dataRow)
+			err := writer.Write(dataRow)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 	}
 	return nil

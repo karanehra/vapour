@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync/atomic"
 	vapour "vapour/cache"
 	"vapour/lib"
 	"vapour/util"
@@ -16,6 +17,11 @@ func GetKey(res http.ResponseWriter, req *http.Request) {
 	key := mux.Vars(req)["key"]
 	fmt.Printf("Getting: %v\n", key)
 	value := vapour.MasterCache.Get(key)
+	if value == nil {
+		atomic.AddInt64(&vapour.MasterCache.Misses, 1)
+	} else {
+		atomic.AddInt64(&vapour.MasterCache.Hits, 1)
+	}
 	util.SendSuccessValueReponse(res, value)
 }
 
@@ -75,6 +81,7 @@ func GetAllShards(res http.ResponseWriter, req *http.Request) {
 	var responseBody map[string]interface{} = map[string]interface{}{}
 	responseBody["totalKeyCount"] = vapour.MasterCache.KeyCount
 	responseBody["hits"] = vapour.MasterCache.Hits
+	responseBody["misses"] = vapour.MasterCache.Misses
 	responseBody["gets"] = vapour.MasterCache.Gets
 	responseBody["sets"] = vapour.MasterCache.Sets
 	responseBody["startupMS"] = vapour.MasterCache.StartupTimeMS

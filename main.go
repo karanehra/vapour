@@ -92,6 +92,14 @@ func dumpKeys() error {
 	}
 	defer csvFile.Close()
 	writer := csv.NewWriter(csvFile)
+	analyticsRow := []string{
+		fmt.Sprintf("%d", cache.MasterCache.Hits),
+		fmt.Sprintf("%d", cache.MasterCache.Misses),
+		fmt.Sprintf("%d", cache.MasterCache.StartupTimeMS),
+		fmt.Sprintf("%d", cache.MasterCache.Gets),
+		fmt.Sprintf("%d", cache.MasterCache.Sets),
+	}
+	writer.Write(analyticsRow)
 	defer writer.Flush()
 	for i := range cache.MasterCache.Shards {
 		shard := cache.MasterCache.Shards[i]
@@ -114,6 +122,21 @@ func readdKeys() {
 	if err == nil {
 		fmt.Println("Picking up local keys")
 		reader := csv.NewReader(localCSV)
+		analyticsRow, _ := reader.Read()
+		hits, err := strconv.Atoi(analyticsRow[0])
+		misses, err := strconv.Atoi(analyticsRow[1])
+		startupTimeMS, err := strconv.Atoi(analyticsRow[2])
+		gets, err := strconv.Atoi(analyticsRow[3])
+		sets, err := strconv.Atoi(analyticsRow[4])
+
+		if err != nil {
+			cache.MasterCache.Hits = int64(hits)
+			cache.MasterCache.Misses = int64(misses)
+			cache.MasterCache.StartupTimeMS = int64(startupTimeMS)
+			cache.MasterCache.Gets = int64(gets)
+			cache.MasterCache.Sets = int64(sets)
+		}
+
 		for {
 			record, err := reader.Read()
 			if err == io.EOF {

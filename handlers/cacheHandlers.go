@@ -85,9 +85,10 @@ func GetAllShards(res http.ResponseWriter, req *http.Request) {
 	responseBody["gets"] = vapour.MasterCache.Gets
 	responseBody["sets"] = vapour.MasterCache.Sets
 	responseBody["startupMS"] = vapour.MasterCache.StartupTimeMS
-	responseBody["shards"] = []int64{}
-	for i := range shards {
-		responseBody["shards"] = append(responseBody["shards"].([]int64), shards[i].KeyCount)
+	shardData := map[string]int64{}
+	for k, v := range shards {
+		shardData[k] = v.KeyCount
 	}
+	responseBody["shards"] = shardData
 	util.SendSuccessReponse(res, responseBody)
 }

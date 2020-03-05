@@ -3,3 +3,4 @@ vapour
 report*
 loadtest*
 *.sh
+*.csv

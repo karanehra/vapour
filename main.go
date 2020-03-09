@@ -19,7 +19,6 @@ import (
 	"vapour/util"
 
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 )
 
 func main() {
@@ -66,7 +65,7 @@ func main() {
 
 	go gracefulShutdown(server, quitServer, stoppedServer)
 
-	go setupSockServer()
+	go lib.SetupSockServer()
 
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err.Error())
@@ -145,31 +144,4 @@ func readdKeys() {
 			}
 		}
 	}
-}
-
-func setupSockServer() {
-	var upgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-		CheckOrigin:     func(r *http.Request) bool { return true },
-	}
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		conn, _ := upgrader.Upgrade(w, r, nil)
-
-		for {
-			msgType, msg, err := conn.ReadMessage()
-			if err != nil {
-				return
-			}
-
-			fmt.Printf("%v, %s\n", msgType, string(msg))
-
-			if err = conn.WriteMessage(msgType, msg); err != nil {
-				return
-			}
-
-		}
-	})
-	fmt.Println("starting sockserver")
-	http.ListenAndServe(":9000", nil)
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+//MasterSocketConnection contains reference to the main websocket connection
 var MasterSocketConnection *websocket.Conn
 
 //SetupSockServer inits the master communication socket
@@ -18,29 +19,19 @@ func SetupSockServer() {
 		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		MasterSocketConnection, err := upgrader.Upgrade(w, r, nil)
+		var err error
+		MasterSocketConnection, err = upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		PingClient()
-		for {
-			msgType, msg, err := MasterSocketConnection.ReadMessage()
-			if err != nil {
-				return
-			}
-
-			fmt.Printf("%v, %s\n", msgType, string(msg))
-
-			if err = MasterSocketConnection.WriteMessage(msgType, msg); err != nil {
-				return
-			}
-
-		}
+		go PingClient()
 	})
 	fmt.Println("starting sockserver")
 	http.ListenAndServe(":9000", nil)
 }
 
+//PingClient periodically pings the connected clients
+//TODO
 func PingClient() {
 	ticker := time.NewTicker(1 * time.Second)
 	for {
@@ -50,10 +41,7 @@ func PingClient() {
 				if err := MasterSocketConnection.WriteMessage(1, []byte("PING")); err != nil {
 					return
 				}
-			} else {
-				fmt.Println("Ws not inited")
 			}
-
 		}
 	}
 }
